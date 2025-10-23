@@ -38,6 +38,9 @@ class ViPERManager @Inject constructor(
     var preset: Preset = Preset()
         private set
 
+    private val _legacyMode = MutableStateFlow(preset.legacyMode)
+    val legacyMode = _legacyMode.asStateFlow()
+
     private val _enabled = MutableStateFlow(preset.enabled)
     val enabled = _enabled.asStateFlow()
     val analogX = AnalogX()
@@ -144,6 +147,7 @@ class ViPERManager @Inject constructor(
     private fun setPreset(preset: Preset) {
         this.preset = preset
 
+        _legacyMode.value = preset.legacyMode
         setEnabled(preset.enabled)
         analogX.setEnabled(preset.analogX.enabled)
         analogX.setLevel(preset.analogX.level)
@@ -183,6 +187,14 @@ class ViPERManager @Inject constructor(
         val routeId = currentRoute.value.getId()
         withContext(Dispatchers.IO) {
             presetDao.insert(PersistedPreset.fromPreset(routeId, preset))
+        }
+    }
+
+    fun setLegacyMode(legacyMode: Boolean) {
+        _legacyMode.value = legacyMode
+        if (preset.legacyMode != legacyMode) {
+            preset.legacyMode = legacyMode
+            savePreset()
         }
     }
 

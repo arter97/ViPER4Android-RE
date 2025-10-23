@@ -10,6 +10,7 @@ import com.aam.viper4android.driver.Preset
 data class PersistedPreset(
     @PrimaryKey @ColumnInfo(name = "route_id") val routeId: String,
     @ColumnInfo(name = "enabled") val enabled: Boolean,
+    @ColumnInfo(name = "legacy_mode") val legacyMode: Boolean,
     @Embedded(prefix = "analog_x") val analogX: AnalogX,
     @Embedded(prefix = "auditory_system_protection") val auditorySystemProtection: AuditorySystemProtection,
     @Embedded(prefix = "convolver") val convolver: Convolver,
@@ -148,6 +149,7 @@ data class PersistedPreset(
     fun toPreset(): Preset {
         return Preset(
             enabled = enabled,
+            legacyMode = legacyMode,
             analogX = Preset.AnalogX(
                 enabled = analogX.enabled,
                 level = analogX.level
@@ -254,6 +256,7 @@ data class PersistedPreset(
             return PersistedPreset(
                 routeId = routeId,
                 enabled = preset.enabled,
+                legacyMode = preset.legacyMode,
                 analogX = AnalogX(
                     enabled = preset.analogX.enabled,
                     level = preset.analogX.level

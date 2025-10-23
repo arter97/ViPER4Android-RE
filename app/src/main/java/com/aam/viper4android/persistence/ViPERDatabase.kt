@@ -15,7 +15,7 @@ import java.time.Instant
 
 @Database(
     entities = [PersistedSetting::class, PersistedSession::class, PersistedPreset::class],
-    version = 2,
+    version = 3,
 )
 @TypeConverters(
     InstantConverter::class,
@@ -39,10 +39,19 @@ abstract class ViPERDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE presets ADD COLUMN legacy_mode INTEGER NOT NULL DEFAULT 0",
+                )
+            }
+        }
+
         fun getInstance(context: Context): ViPERDatabase {
             return Room.databaseBuilder(context, ViPERDatabase::class.java, "ViPERDatabase")
                 .addMigrations(
                     MIGRATION_1_2,
+                    MIGRATION_2_3,
                 )
                 .build()
         }

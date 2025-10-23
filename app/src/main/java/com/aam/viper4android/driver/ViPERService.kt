@@ -15,7 +15,6 @@ import com.aam.viper4android.R
 import com.aam.viper4android.ViPERApplication
 import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.persistence.SessionDao
-import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.persistence.model.PersistedSession
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +30,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ViPERService : LifecycleService() {
     @Inject lateinit var viperManager: ViPERManager
-    @Inject lateinit var viperSettings: ViPERSettings
     @Inject lateinit var sessionDao: SessionDao
 
     private var bootCount: Int = 0
@@ -90,7 +88,7 @@ class ViPERService : LifecycleService() {
 
     private fun restoreSessions() {
         lifecycleScope.launch {
-            setLegacyModeLocked(viperSettings.legacyMode.value)
+            setLegacyModeLocked(viperManager.legacyMode.value)
             sessionMutex.unlock()
         }
     }
@@ -116,7 +114,7 @@ class ViPERService : LifecycleService() {
                     startedAt = now,
                 ))
             }
-            if (!viperSettings.legacyMode.value) {
+            if (!viperManager.legacyMode.value) {
                 viperManager.addSession(id, packageName, now)
             } else {
                 Timber.d("addSessionLocked: Legacy mode is enabled, not adding session $id for package $packageName")
@@ -144,7 +142,7 @@ class ViPERService : LifecycleService() {
             withContext(Dispatchers.IO) {
                 sessionDao.delete(id)
             }
-            if (!viperSettings.legacyMode.value) {
+            if (!viperManager.legacyMode.value) {
                 viperManager.removeSession(id, packageName)
             } else {
                 Timber.d("removeSessionLocked: Legacy mode is enabled, not removing session $id for package $packageName")
@@ -184,7 +182,7 @@ class ViPERService : LifecycleService() {
 
     private fun collectFlows() {
         lifecycleScope.launch {
-            viperSettings.legacyMode.drop(1).collect { legacyMode ->
+            viperManager.legacyMode.drop(1).collect { legacyMode ->
                 sessionMutex.withLock {
                     setLegacyModeLocked(legacyMode)
                 }
@@ -217,7 +215,7 @@ class ViPERService : LifecycleService() {
 
     private fun updateNotification(
         route: ViPERRoute = viperManager.currentRoute.value,
-        legacyMode: Boolean = viperSettings.legacyMode.value,
+        legacyMode: Boolean = viperManager.legacyMode.value,
         sessions: List<Session> = viperManager.currentSessions.value,
     ) {
         try {
@@ -236,7 +234,7 @@ class ViPERService : LifecycleService() {
 
     private fun getNotification(
         route: ViPERRoute = viperManager.currentRoute.value,
-        legacyMode: Boolean = viperSettings.legacyMode.value,
+        legacyMode: Boolean = viperManager.legacyMode.value,
         sessions: List<Session> = viperManager.currentSessions.value,
     ): Notification {
         Timber.d("getNotification: route: $route, legacyMode: $legacyMode, sessions: $sessions")

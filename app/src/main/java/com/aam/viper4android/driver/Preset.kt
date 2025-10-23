@@ -2,6 +2,7 @@ package com.aam.viper4android.driver
 
 data class Preset(
     var enabled: Boolean = DEFAULT_ENABLED,
+    var legacyMode: Boolean = DEFAULT_LEGACY_MODE,
     val analogX: AnalogX = AnalogX(),
     val auditorySystemProtection: AuditorySystemProtection = AuditorySystemProtection(),
     val convolver: Convolver = Convolver(),
@@ -285,5 +286,6 @@ data class Preset(
 
     companion object {
         const val DEFAULT_ENABLED: Boolean = false
+        const val DEFAULT_LEGACY_MODE: Boolean = false
     }
 }
