@@ -163,6 +163,7 @@ class ViPERManager @Inject constructor(
         fieldSurround.setSurroundStrength(preset.fieldSurround.surroundStrength)
         fieldSurround.setMidImageStrength(preset.fieldSurround.midImageStrength)
         firEqualizer.setEnabled(preset.firEqualizer.enabled)
+        firEqualizer.setGains(preset.firEqualizer.gains)
         headphoneSurroundPlus.setEnabled(preset.headphoneSurroundPlus.enabled)
         masterLimiter.setOutputGain(preset.masterLimiter.outputGain)
         masterLimiter.setOutputPan(preset.masterLimiter.outputPan)

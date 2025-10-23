@@ -85,7 +85,7 @@ data class PersistedPreset(
 
     data class FIREqualizer(
         var enabled: Boolean,
-//        var gains: List<Float> // TODO: implement
+        var gains: List<Float>
     )
 
     data class HeadphoneSurroundPlus(
@@ -198,7 +198,7 @@ data class PersistedPreset(
             ),
             firEqualizer = Preset.FIREqualizer(
                 enabled = firEqualizer.enabled,
-//                gains = firEqualizer.gains
+                gains = firEqualizer.gains
             ),
             headphoneSurroundPlus = Preset.HeadphoneSurroundPlus(
                 enabled = headphoneSurroundPlus.enabled,
@@ -305,7 +305,7 @@ data class PersistedPreset(
                 ),
                 firEqualizer = FIREqualizer(
                     enabled = preset.firEqualizer.enabled,
-//                    gains = preset.firEqualizer.gains
+                    gains = preset.firEqualizer.gains
                 ),
                 headphoneSurroundPlus = HeadphoneSurroundPlus(
                     enabled = preset.headphoneSurroundPlus.enabled,

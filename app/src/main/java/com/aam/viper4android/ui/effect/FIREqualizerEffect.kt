@@ -39,6 +39,40 @@ import com.aam.viper4android.ui.component.eq.EqualizerBottomSheet
 import com.aam.viper4android.ui.component.eq.EqualizerPreview
 import com.aam.viper4android.vm.FIREqualizerViewModel
 
+private data class FirEqualizerPreset(
+    val id: String,
+    val label: String,
+    val gains: List<Float>
+)
+
+private val firEqualizerPresetOptions = listOf(
+    FirEqualizerPreset(
+        id = "bass_reduce",
+        label = "Bass reduce",
+        gains = listOf(-8f, -6f, -4f, -2f, -1f, 0f, 1f, 2f, 3f, 4f)
+    ),
+    FirEqualizerPreset(
+        id = "flat",
+        label = "Flat",
+        gains = List(10) { 0f }
+    ),
+    FirEqualizerPreset(
+        id = "classic",
+        label = "Classic",
+        gains = listOf(4f, 2f, 0f, -2f, -3f, -1f, 1f, 3f, 4f, 5f)
+    ),
+    FirEqualizerPreset(
+        id = "jazz",
+        label = "Jazz",
+        gains = listOf(5f, 3f, 1f, -1f, -2f, 0f, 2f, 4f, 5f, 5f)
+    ),
+    FirEqualizerPreset(
+        id = "pop",
+        label = "Pop",
+        gains = listOf(4f, 2f, 0f, -1f, -2f, 1f, 3f, 4f, 4f, 3f)
+    ),
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FIREqualizerEffect(
@@ -48,7 +82,8 @@ fun FIREqualizerEffect(
     val gains by viewModel.gains.collectAsStateWithLifecycle()
 
     var showEditorDialog by rememberSaveable { mutableStateOf(false) }
-    
+    val selectedPresetId = firEqualizerPresetOptions.firstOrNull { it.gains == gains }?.id
+
     Effect(
         icon = painterResource(R.drawable.ic_equalizer),
         title = stringResource(R.string.fir_equalizer),
@@ -56,51 +91,41 @@ fun FIREqualizerEffect(
         onCheckedChange = viewModel::setEnabled
     ) {
         Column {
+            /*
             Row(
                 modifier = Modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(horizontal = 22.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                val selectedIcon: @Composable () -> Unit = {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Done icon",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+
+                val isCustomSelected = selectedPresetId == null
                 FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Custom") }
+                    selected = isCustomSelected,
+                    onClick = { showEditorDialog = true },
+                    label = { Text("Custom") },
+                    leadingIcon = if (isCustomSelected) selectedIcon else null
                 )
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Bass reduce") }
-                )
-                FilterChip(
-                    selected = true,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Flat") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Done,
-                            contentDescription = "Done icon",
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                )
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Classic") }
-                )
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Jazz") }
-                )
-                FilterChip(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    label = { Text("Pop") }
-                )
+
+                firEqualizerPresetOptions.forEach { preset ->
+                    val selected = preset.id == selectedPresetId
+                    FilterChip(
+                        selected = selected,
+                        onClick = { viewModel.setGains(preset.gains.toList()) },
+                        label = { Text(preset.label) },
+                        leadingIcon = if (selected) selectedIcon else null
+                    )
+                }
             }
             Spacer(Modifier.height(18.dp))
+             */
             EqualizerPreview(
                 modifier = Modifier
                     .height(300.dp)
@@ -124,6 +149,10 @@ fun FIREqualizerEffect(
         }
         EqualizerBottomSheet(
             sheetState = sheetState,
+            gains = gains,
+            onGainsChanged = viewModel::setGains,
+            onBandCountChange = viewModel::setBandCount,
+            onReset = viewModel::resetGains,
             onDismissRequest = { showEditorDialog = false }
         )
     }

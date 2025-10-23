@@ -22,10 +22,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -38,10 +35,15 @@ import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.BottomSheet
 import com.aam.viper4android.ui.component.EqualizerEditor
 
+@Suppress("UNUSED_PARAMETER")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EqualizerBottomSheet(
     sheetState: SheetState,
+    gains: List<Float>,
+    onGainsChanged: (List<Float>) -> Unit,
+    onBandCountChange: (Int) -> Unit,
+    onReset: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val view = LocalView.current
@@ -58,9 +60,12 @@ fun EqualizerBottomSheet(
             }
     }
 
+    val bandOptions = listOf(10, 15, 31)
+    val selectedBandCount = gains.size
+    val selectedIndex = bandOptions.indexOf(selectedBandCount).takeIf { it >= 0 } ?: 0
+
     BottomSheet(
         onDismissRequest = onDismissRequest,
-//        sheetState = sheetState,
         windowInsets = systemBarsInsets ?: BottomSheetDefaults.windowInsets,
     ) {
         Column(
@@ -73,7 +78,7 @@ fun EqualizerBottomSheet(
                 },
                 modifier = Modifier.padding(horizontal = 8.dp),
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onReset) {
                         Icon(
                             painter = painterResource(R.drawable.ic_restart),
                             contentDescription = "Reset to default"
@@ -82,58 +87,24 @@ fun EqualizerBottomSheet(
                 }
             )
 
-            var selectedIndex by remember { mutableIntStateOf(0) }
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
             ) {
-                val options = listOf("10", "15", "25", "31")
-                options.forEachIndexed { index, label ->
+                bandOptions.forEachIndexed { index, bandCount ->
                     SegmentedButton(
                         selected = index == selectedIndex,
-                        onClick = { selectedIndex = index },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
+                        onClick = {
+                            if (bandCount != selectedBandCount) {
+                                onBandCountChange(bandCount)
+                            }
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = bandOptions.size)
                     ) {
-                        Text(label)
+                        Text(bandCount.toString())
                     }
                 }
-            }
-
-            var gains by remember {
-                mutableStateOf(listOf(
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                ))
             }
 
             EqualizerEditor(
@@ -141,7 +112,7 @@ fun EqualizerBottomSheet(
                     .height(380.dp)
                     .fillMaxWidth(),
                 gains = gains,
-                onGainsChanged = { gains = it }
+                onGainsChanged = onGainsChanged
             )
 
             Button(
@@ -172,6 +143,10 @@ fun EqualizerBottomSheetPreview() {
     }
     EqualizerBottomSheet(
         sheetState = sheetState,
+        gains = List(10) { 0f },
+        onGainsChanged = {},
+        onBandCountChange = {},
+        onReset = {},
         onDismissRequest = { }
     )
 }

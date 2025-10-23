@@ -1,12 +1,14 @@
 package com.aam.viper4android.persistence
 
 import android.content.Context
+import androidx.collection.FloatList
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.aam.viper4android.persistence.converter.FloatListConverter
 import com.aam.viper4android.persistence.converter.InstantConverter
 import com.aam.viper4android.persistence.model.PersistedPreset
 import com.aam.viper4android.persistence.model.PersistedSession
@@ -19,6 +21,7 @@ import java.time.Instant
 )
 @TypeConverters(
     InstantConverter::class,
+    FloatListConverter::class
 )
 abstract class ViPERDatabase : RoomDatabase() {
     abstract fun settingsDao(): SettingsDao
